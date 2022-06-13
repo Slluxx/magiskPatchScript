@@ -31,12 +31,13 @@ class Phone():
     def __init__(self, initPath="/sdcard/", noRootError="inaccessible or not found"):
         self.initPath = initPath # the folder that needs to be initialized after reboot, accessible WITHOUT root.
         self.noRootError = noRootError # "adb shell su -c ls" error substring
+        self.defaultDecode = 'utf-8'
         self.sdInitialized = False
         self.device = None
 
     def getDevice(self):
         # adb shell getprop ro.product.device
-        device =  subprocess.run(['adb', 'shell', 'getprop', 'ro.product.device'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        device =  subprocess.run(['adb', 'shell', 'getprop', 'ro.product.device'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
         device = device.split("\n")[0].strip()
         self.device = device
         return device
@@ -46,7 +47,7 @@ class Phone():
         print("Waiting for folder to be initialized")
         print("You might have to unlock your phone and wait a minute.")
         while self.sdInitialized == False:
-            ret = subprocess.run(['adb', 'shell', 'ls', f'{self.initPath}'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode('utf-8')
+            ret = subprocess.run(['adb', 'shell', 'ls', f'{self.initPath}'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode(self.defaultDecode)
             if ret == "":
                 time.sleep(2)
             else:
@@ -57,13 +58,13 @@ class Phone():
         print("Waiting for bootloader to be initialized")
         ret = ""
         while ret == "":
-            ret = subprocess.run(['fastboot', 'devices', '-l'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode('utf-8')
+            ret = subprocess.run(['fastboot', 'devices', '-l'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode(self.defaultDecode)
             time.sleep(2)
         return True
     
     def checkRootStatus(self):
         print("Checking if device is rooted")
-        ret = subprocess.run(['adb', 'shell', 'su', '-c', 'ls', '/'], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE ).stderr.decode('utf-8')
+        ret = subprocess.run(['adb', 'shell', 'su', '-c', 'ls', '/'], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE ).stderr.decode(self.defaultDecode)
         if f"{self.noRootError}" in ret:
             return False
         else:
@@ -71,18 +72,18 @@ class Phone():
 
     def waitForAdb(self):
         print("Waiting for a device to be connected")
-        subprocess.run(['adb', 'wait-for-device'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'wait-for-device'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
     
     def waitForSideload(self):
         print("You might have to browse to (adb) 'sideload' in your recovery menu")
-        subprocess.run(['adb', 'wait-for-sideload'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'wait-for-sideload'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
     
     def rebootToMode(self, mode):
         """Reboots the phone into a given mode.
         modes: recovery, bootloader, system, sideload, sideload-auto-reboot
         """
         print(f"Rebooting to {mode} mode")
-        subprocess.run(['adb', 'reboot', f'{mode}'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'reboot', f'{mode}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
     def sideloadZip(self, updateFile):
         if not exists(updateFile):
@@ -90,7 +91,7 @@ class Phone():
             exit()
 
         print(f"Sideloading {updateFile}")
-        subprocess.run(['adb', 'sideload', f'{updateFile}'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'sideload', f'{updateFile}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
         print("Sideloading is complete. If your phone is not restarting, click on 'restart' (to system) in your recovery menu.")
 
     def extractFileFromZip(self, zipFile, fileName):
@@ -112,16 +113,16 @@ class Phone():
             exit()
 
         print("pushing boot.img to sd")
-        subprocess.run(['adb', 'push', './boot.img', f'{self.initPath}'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'push', './boot.img', f'{self.initPath}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
         print("patching boot.img on system")
-        subprocess.run(['adb', 'shell', 'su', '-c', f'{magiskPath}boot_patch.sh', f'{self.initPath}boot.img'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'shell', 'su', '-c', f'{magiskPath}boot_patch.sh', f'{self.initPath}boot.img'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
         print("Moving new-boot.img to pullable location")
-        subprocess.run(['adb', 'shell', 'su', '-c', 'mv', f'{magiskPath}new-boot.img', f'{self.initPath}'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'shell', 'su', '-c', 'mv', f'{magiskPath}new-boot.img', f'{self.initPath}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
         print("pulling new-boot.img")
-        subprocess.run(['adb', 'pull', f'{self.initPath}new-boot.img'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['adb', 'pull', f'{self.initPath}new-boot.img'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
         if not exists("./new-boot.img"):
             print("No new-boot.img found, stopping.")
@@ -129,11 +130,11 @@ class Phone():
 
     def flashBootImage(self, bootImagePath="./new-boot.img"):
         print("flashing new-boot.img")
-        subprocess.run(['fastboot', 'flash', 'boot', f'{bootImagePath}'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['fastboot', 'flash', 'boot', f'{bootImagePath}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
     
     def fastbootReboot(self):
         print("rebooting to system")
-        subprocess.run(['fastboot', 'reboot'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        subprocess.run(['fastboot', 'reboot'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
     def cleanupLocal(self):
         print("Cleaning up local files")
@@ -145,12 +146,16 @@ class Phone():
 
 if __name__ == "__main__":
     phone = Phone()
+    if phone.checkAdbFastbootStatus() == False:
+        print("ADB and/or Fastboot are not installed or not in the PATH")
+        exit()
+
     phone.waitForAdb()
     phone.getDevice()
     if phone.checkRootStatus() == False:
         print("No root access found but is required. Please root your phone and try again.")
         exit()
-    
+
 
     if phone.device == "sweet":
         phone.waitForFolderInit()
