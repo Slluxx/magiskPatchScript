@@ -40,3 +40,9 @@ You can download the script and run it via `python ./autoupdate.py`. Its tested 
 - Find a proper name for this script
 - Make an actual good readme
 - Refine script
+
+
+## Thanks to:
+
+- zgfg (XDA)
+- ipdev (XDA)
