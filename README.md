@@ -40,6 +40,8 @@ You can download the script and run it via `python ./autoupdate.py`. Its tested 
 - Find a proper name for this script
 - Make an actual good readme
 - Refine script
+- windows / linux binary so python does not have to be installed
+- gui for noobs
 
 
 ## Thanks to:
