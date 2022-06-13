@@ -174,10 +174,10 @@ if __name__ == "__main__":
         phone.waitForFolderInit()
         phone.extractFileFromZip("update.zip", "boot.img")
         phone.pushPatchPullForMagisk()
-        """ phone.rebootToMode("sideload-auto-reboot")
+        phone.rebootToMode("sideload-auto-reboot")
         phone.waitForSideload()
         phone.sideloadZip("update.zip")
-        phone.waitForAdb() """
+        phone.waitForAdb()
         phone.rebootToMode("bootloader")
         phone.waitForBootloaderInit()
         phone.flashBootImage()
