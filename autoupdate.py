@@ -129,7 +129,7 @@ class Phone():
         subprocess.run(['adb', 'push', './boot.img', f'{self.initPath}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
         print("patching boot.img on system")
-        subprocess.run(['adb', 'shell', 'su', '-c', f'{magiskPath}boot_patch.sh', f'{self.initPath}boot.img'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
+        subprocess.run(['adb', 'shell', 'su', '-c', f'\'export KEEPVERITY=true; export KEEPFORCEENCRYPT=true; {magiskPath}boot_patch.sh\'', f'{self.initPath}boot.img'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
 
         print("Moving new-boot.img to pullable location")
         subprocess.run(['adb', 'shell', 'su', '-c', 'mv', f'{magiskPath}new-boot.img', f'{self.initPath}'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
@@ -174,10 +174,10 @@ if __name__ == "__main__":
         phone.waitForFolderInit()
         phone.extractFileFromZip("update.zip", "boot.img")
         phone.pushPatchPullForMagisk()
-        phone.rebootToMode("sideload-auto-reboot")
+        """ phone.rebootToMode("sideload-auto-reboot")
         phone.waitForSideload()
         phone.sideloadZip("update.zip")
-        phone.waitForAdb()
+        phone.waitForAdb() """
         phone.rebootToMode("bootloader")
         phone.waitForBootloaderInit()
         phone.flashBootImage()
