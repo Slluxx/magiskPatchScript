@@ -70,6 +70,19 @@ class Phone():
         else:
             return True
 
+    def checkAdbFastbootStatus(self):
+        print("Checking if adb and Fastboot are installed")
+        try: 
+            subprocess.run(['adb'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            return False
+        
+        try:
+            subprocess.run(['fastboot'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+        except Exception as e:
+            return False
+
     def waitForAdb(self):
         print("Waiting for a device to be connected")
         subprocess.run(['adb', 'wait-for-device'], stdout=subprocess.PIPE).stdout.decode(self.defaultDecode)
